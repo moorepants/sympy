@@ -6,13 +6,13 @@ from sympy.printing.pretty.pretty import PrettyPrinter
 from sympy.printing.pretty.stringpict import prettyForm, stringPict
 from sympy.printing.str import StrPrinter
 from sympy.utilities import group
-from sympy.physics.vector.dynamicsymbols import dynamicsymbols
 
 
 class VectorStrPrinter(StrPrinter):
     """String Printer for vector expressions. """
 
     def _print_Derivative(self, e):
+        from sympy.physics.vector.functions import dynamicsymbols
         t = dynamicsymbols._t
         if (bool(sum([i == t for i in e.variables])) &
                 isinstance(type(e.args[0]), UndefinedFunction)):
@@ -24,6 +24,7 @@ class VectorStrPrinter(StrPrinter):
             return StrPrinter().doprint(e)
 
     def _print_Function(self, e):
+        from sympy.physics.vector.functions import dynamicsymbols
         t = dynamicsymbols._t
         if isinstance(type(e), UndefinedFunction):
             return StrPrinter().doprint(e).replace("(%s)" % t, '')
@@ -35,6 +36,7 @@ class VectorLatexPrinter(LatexPrinter):
 
     def _print_Function(self, expr, exp=None):
         func = expr.func.__name__
+        from sympy.physics.vector.functions import dynamicsymbols
         t = dynamicsymbols._t
 
         if hasattr(self, '_print_' + func):
@@ -105,6 +107,7 @@ class VectorLatexPrinter(LatexPrinter):
 
         # check if expr is a dynamicsymbol
         from sympy.core.function import AppliedUndef
+        from sympy.physics.vector.functions import dynamicsymbols
         t = dynamicsymbols._t
         expr = der_expr.expr
         red = expr.atoms(AppliedUndef)
@@ -135,6 +138,7 @@ class VectorPrettyPrinter(PrettyPrinter):
 
     def _print_Derivative(self, deriv):
         # XXX use U('PARTIAL DIFFERENTIAL') here ?
+        from sympy.physics.vector.functions import dynamicsymbols
         t = dynamicsymbols._t
         dots = 0
         can_break = True
@@ -219,6 +223,7 @@ class VectorPrettyPrinter(PrettyPrinter):
         return pform
 
     def _print_Function(self, e):
+        from sympy.physics.vector.functions import dynamicsymbols
         t = dynamicsymbols._t
         # XXX works only for applied functions
         func = e.func
