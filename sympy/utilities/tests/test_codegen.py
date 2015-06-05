@@ -6,7 +6,7 @@ from sympy.matrices import Matrix, MatrixSymbol
 from sympy.utilities.codegen import (codegen, make_routine, CCodeGen,
             InputArgument, CodeGenError, FCodeGen, CodeGenArgumentListError,
             OutputArgument, InOutArgument)
-from sympy.utilities.pytest import raises
+from sympy.utilities.pytest import raises, XFAIL
 from sympy.utilities.lambdify import implemented_function
 
 #FIXME: Fails due to circular import in with core
@@ -98,6 +98,24 @@ def test_simple_c_code():
         "   double test_result;\n"
         "   test_result = z*(x + y);\n"
         "   return test_result;\n"
+        "}\n"
+    )
+    assert source == expected
+
+
+@XFAIL
+def test_simple_c_code_with_latex_symbols():
+    # NOTE : See issue 7767.
+    x, y, z = symbols('x_{\mu}, y_1, \Gamma')
+    expr = (x + y)*z
+    routine = make_routine("test", expr)
+    code_gen = CCodeGen()
+    source = get_string(code_gen.dump_c, [routine])
+    expected = (
+        "#include \"file.h\"\n"
+        "#include <math.h>\n"
+        "double test(double Gamma, double x_mu, double y_1) {\n"
+        "   return Gamma*(x_mu + y_1);\n"
         "}\n"
     )
     assert source == expected
